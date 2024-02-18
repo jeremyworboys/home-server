@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+    traefik:
+        image: traefik:2.11
+        container_name: traefik
+        restart: always
+        networks:
+            - traefik_proxy
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8080:8080"
+        environment:
+            - TZ=${TZ}
+        command:
+            - --api=true
+            - --providers.docker=true
+            - --providers.docker.network=traefik_proxy
+            - --providers.docker.exposedbydefault=false
+            - --entrypoints.http.address=:80
+            - --entrypoints.https.address=:443
+            - --entrypoints.https.http.tls.options=default
+            # - --entrypoints.https.forwardedheaders.trustedips=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32
+            - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+            - --certificatesresolvers.letsencrypt.acme.email=jw@jeremyworboys.com
+            - --certificatesresolvers.letsencrypt.acme.storage=/mnt/traefik/acme.json
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.traefik.rule=Host(`traefik.${DOMAINNAME}`)
+            - traefik.http.routers.traefik.entrypoints=https
+            - traefik.http.routers.traefik.service=api@internal
+            - traefik.http.routers.traefik.tls.domains[0].main=${DOMAINNAME}
+            - traefik.http.routers.traefik.tls.domains[0].sans=*.${DOMAINNAME}
+            - traefik.http.routers.traefik.middlewares=auth,securityheaders
+            - traefik.http.routers.http-catchall.entrypoints=http
+            - traefik.http.routers.http-catchall.middlewares=sslredirect
+            - traefik.http.middlewares.auth.basicauth.users=${HTTP_USERNAME}:${HTTP_PASSWORD}
+            - traefik.http.middlewares.sslredirect.redirectscheme.scheme=https
+            - traefik.http.middlewares.securityheaders.headers.forceSTSHeader=true
+            - traefik.http.middlewares.securityheaders.headers.stsPreload=true
+            - traefik.http.middlewares.securityheaders.headers.stsSeconds=315360000
+            - traefik.http.middlewares.securityheaders.headers.stsIncludeSubdomains=true
+        volumes:
+            - /mnt/docker/traefik:/mnt/traefik
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+    traefik_proxy:
+        name: traefik_proxy
+        external: true
