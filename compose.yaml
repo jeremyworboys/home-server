@@ -69,7 +69,7 @@ services:
             - traefik.enable=true
             - traefik.http.routers.portainer.rule=Host(`portainer.$DOMAINNAME`)
             - traefik.http.routers.portainer.entrypoints=websecure
-            - traefik.http.routers.homepage.tls.certresolver=letsencrypt
+            - traefik.http.routers.portainer.tls.certresolver=letsencrypt
             - traefik.http.routers.portainer.middlewares=auth,securityheaders
             - traefik.http.services.portainer.loadbalancer.server.port=9000
 
