@@ -54,7 +54,7 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock:ro
 
     homepage:
-        image: ghcr.io/benphelps/homepage:latest
+        image: ghcr.io/gethomepage/homepage:latest
         container_name: homepage
         restart: unless-stopped
         networks:
@@ -65,10 +65,12 @@ services:
             - PGID=${PGID}
         volumes:
             - $DOCKERDIR/services/homepage:/app/config
+            - $DOCKERDIR/logs/homepage:/app/config/logs
         labels:
             - traefik.enable=true
-            - traefik.http.routers.homepage.entrypoints=websecure
             - traefik.http.routers.homepage.rule=Host(`$DOMAINNAME`)
+            - traefik.http.routers.homepage.entrypoints=websecure
+            - traefik.http.routers.homepage.tls.certresolver=letsencrypt
             - traefik.http.routers.homepage.middlewares=auth,securityheaders
             - traefik.http.services.homepage.loadbalancer.server.port=3000
 
