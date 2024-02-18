@@ -61,11 +61,12 @@ services:
             - traefik_proxy
         environment:
             - TZ=${TZ}
-            - PUID=${PUID}
-            - PGID=${PGID}
+#            - PUID=${PUID}
+#            - PGID=${PGID}
         volumes:
             - $DOCKERDIR/services/homepage:/app/config
             - $DOCKERDIR/logs/homepage:/app/config/logs
+            - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
             - traefik.enable=true
             - traefik.http.routers.homepage.rule=Host(`$DOMAINNAME`)
