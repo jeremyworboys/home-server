@@ -4,7 +4,7 @@ services:
     traefik:
         image: traefik:2.11
         container_name: traefik
-        restart: always
+        restart: unless-stopped
         networks:
             - traefik_proxy
         ports:
@@ -52,6 +52,25 @@ services:
             - $DOCKERDIR/services/traefik/rules:/rules
             - $DOCKERDIR/services/traefik/acme:/etc/traefik/acme
             - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    homepage:
+        image: ghcr.io/benphelps/homepage:latest
+        container_name: homepage
+        restart: unless-stopped
+        networks:
+            - traefik_proxy
+        environment:
+            - TZ=${TZ}
+            - PUID=${PUID}
+            - PGID=${PGID}
+        volumes:
+            - $DOCKERDIR/services/homepage:/app/config
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.homepage.entrypoints=websecure
+            - traefik.http.routers.homepage.rule=Host(`$DOMAINNAME`)
+            - traefik.http.routers.homepage.middlewares=auth,securityheaders
+            - traefik.http.services.homepage.loadbalancer.server.port=3000
 
 networks:
     traefik_proxy:
