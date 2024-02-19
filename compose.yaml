@@ -262,7 +262,7 @@ services:
             - traefik.http.routers.prowlarr.entrypoints=websecure
             - traefik.http.routers.prowlarr.tls.certresolver=letsencrypt
             - traefik.http.routers.prowlarr.middlewares=securityheaders
-            - traefik.http.services.prowlarr.loadbalancer.server.port=8686
+            - traefik.http.services.prowlarr.loadbalancer.server.port=9696
 
 networks:
     default:
