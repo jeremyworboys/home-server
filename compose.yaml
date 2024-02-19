@@ -265,6 +265,26 @@ services:
             - traefik.http.routers.prowlarr.middlewares=securityheaders
             - traefik.http.services.prowlarr.loadbalancer.server.port=9696
 
+    overseerr:
+        image: sctx/overseerr:latest
+        container_name: overseerr
+        restart: unless-stopped
+        networks:
+            - traefik_proxy
+        environment:
+            TZ: ${TZ}
+            PUID: ${PUID}
+            PGID: ${PGID}
+        volumes:
+            - ${DOCKERDIR}/services/overseerr:/app/config
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.overseerr.rule=Host(`overseerr.$DOMAINNAME`)
+            - traefik.http.routers.overseerr.entrypoints=websecure
+            - traefik.http.routers.overseerr.tls.certresolver=letsencrypt
+            - traefik.http.routers.overseerr.middlewares=securityheaders
+            - traefik.http.services.overseerr.loadbalancer.server.port=5055
+
 networks:
     default:
         driver: bridge
