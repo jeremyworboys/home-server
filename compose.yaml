@@ -112,7 +112,7 @@ services:
             - "32469:32469/tcp"
         volumes:
             - $DOCKERDIR/services/plex:/config
-            - $MEDIADIR:/data
+            - $MEDIADIR:/data/media
             - /dev/shm:/data/transcode
         environment:
             TZ: ${TZ}
