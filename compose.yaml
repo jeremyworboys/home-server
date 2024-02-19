@@ -112,8 +112,8 @@ services:
             - "32469:32469/tcp"
         volumes:
             - $DOCKERDIR/services/plex:/config
-            - $MEDIADIR:/data/media
-            - /dev/shm:/data/transcode
+            - $MEDIADIR:/data
+            - /dev/shm:/transcode
         environment:
             TZ: ${TZ}
             HOSTNAME: "Plex"
