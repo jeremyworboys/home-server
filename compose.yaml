@@ -175,6 +175,28 @@ services:
         labels:
             - deunhealth.restart.on.unhealthy=true
 
+    sabnzbd:
+        image: lscr.io/linuxserver/sabnzbd:latest
+        container_name: sabnzbd
+        restart: unless-stopped
+        networks:
+            - traefik_proxy
+        volumes:
+            - ${DOCKERDIR}/services/sabnzbd:/config
+            - ${MEDIADIR}/usenet:/data
+        environment:
+            TZ: ${TZ}
+            PUID: ${PUID}
+            PGID: ${PGID}
+            UMASK_SET: 002
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.$DOMAINNAME`)
+            - traefik.http.routers.sabnzbd.entrypoints=websecure
+            - traefik.http.routers.sabnzbd.tls.certresolver=letsencrypt
+            - traefik.http.routers.sabnzbd.middlewares=securityheaders
+            - traefik.http.services.sabnzbd.loadbalancer.server.port=8080
+
     sonarr:
         image: lscr.io/linuxserver/sonarr:develop
         container_name: sonarr
