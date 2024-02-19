@@ -169,7 +169,7 @@ services:
             timeout: 10s
             retries: 1
         volumes:
-            - ${MEDIADIR}/torrents:/downloads
+            - ${MEDIADIR}/torrents:/data
             - ${DOCKERDIR}/services/qbittorrent:/config
             - ${DOCKERDIR}/logs/qbittorrent:/config/logs
         labels:
@@ -261,6 +261,19 @@ services:
             - traefik.http.routers.prowlarr.tls.certresolver=letsencrypt
             - traefik.http.routers.prowlarr.middlewares=securityheaders
             - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+
+    recyclarr:
+        image: ghcr.io/recyclarr/recyclarr:latest
+        container_name: recyclarr
+        restart: unless-stopped
+        networks:
+            - traefik_proxy
+        environment:
+            TZ: ${TZ}
+            PUID: ${PUID}
+            PGID: ${PGID}
+        volumes:
+            - ${DOCKERDIR}/services/recyclarr:/config
 
     overseerr:
         image: sctx/overseerr:latest
