@@ -35,6 +35,11 @@ services:
             - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
             - --certificatesresolvers.letsencrypt.acme.tlsChallenge=true
             - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json
+        volumes:
+            - $DOCKERDIR/logs/traefik:/logs
+            - $DOCKERDIR/services/traefik/rules:/rules
+            - $DOCKERDIR/services/traefik/acme:/etc/traefik/acme
+            - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
             - traefik.enable=true
             - traefik.http.routers.traefik.rule=Host(`traefik.${DOMAINNAME}`)
@@ -47,11 +52,6 @@ services:
             - traefik.http.middlewares.securityheaders.headers.stsPreload=true
             - traefik.http.middlewares.securityheaders.headers.stsSeconds=315360000
             - traefik.http.middlewares.securityheaders.headers.stsIncludeSubdomains=true
-        volumes:
-            - $DOCKERDIR/logs/traefik:/logs
-            - $DOCKERDIR/services/traefik/rules:/rules
-            - $DOCKERDIR/services/traefik/acme:/etc/traefik/acme
-            - /var/run/docker.sock:/var/run/docker.sock:ro
 
     portainer:
         image: portainer/portainer-ce:latest
@@ -67,7 +67,7 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
             - traefik.enable=true
-            - traefik.http.routers.portainer.rule=Host(`portainer.$DOMAINNAME`)
+            - traefik.http.routers.portainer.rule=Host(`portainer.${DOMAINNAME}`)
             - traefik.http.routers.portainer.entrypoints=websecure
             - traefik.http.routers.portainer.tls.certresolver=letsencrypt
             - traefik.http.routers.portainer.middlewares=securityheaders
@@ -87,7 +87,7 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
             - traefik.enable=true
-            - traefik.http.routers.homepage.rule=Host(`$DOMAINNAME`)
+            - traefik.http.routers.homepage.rule=Host(`${DOMAINNAME}`)
             - traefik.http.routers.homepage.entrypoints=websecure
             - traefik.http.routers.homepage.tls.certresolver=letsencrypt
             - traefik.http.routers.homepage.middlewares=auth,securityheaders
@@ -96,11 +96,11 @@ services:
     plex:
         image: plexinc/pms-docker:latest
         container_name: plex
-        networks:
-            - default
-        restart: "unless-stopped"
+        restart: unless-stopped
         #devices:
         #    - /dev/dri:/dev/dri # for hardware transcoding
+        networks:
+            - default
         ports:
             - "1900:1900/udp"
             - "8324:8324/tcp"
@@ -110,10 +110,6 @@ services:
             - "32413:32413/udp"
             - "32414:32414/udp"
             - "32469:32469/tcp"
-        volumes:
-            - $DOCKERDIR/services/plex:/config
-            - $MEDIADIR:/data
-            - /dev/shm:/transcode
         environment:
             TZ: ${TZ}
             HOSTNAME: "Plex"
@@ -121,6 +117,62 @@ services:
             PLEX_GID: ${PGID}
             PLEX_CLAIM: ${PLEX_CLAIM}
             ADVERTISE_IP: "http://${HOST_IP}:32400/"
+        volumes:
+            - $DOCKERDIR/services/plex:/config
+            - $MEDIADIR:/data
+            - /dev/shm:/transcode
+
+    gluetun:
+        image: qmcgaw/gluetun:latest
+        container_name: gluetun
+        restart: unless-stopped
+        cap_add:
+            - NET_ADMIN
+        devices:
+            - /dev/net/tun
+        networks:
+            - traefik_proxy
+        ports:
+            - "8180:8180/tcp" # qBittorrent
+            - "6881:6881/tcp" # qBittorrent
+            - "6881:6881/udp" # qBittorrent
+        environment:
+            TZ: ${TZ}
+            VPN_TYPE: wireguard
+            VPN_SERVICE_PROVIDER: nordvpn
+            WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY}
+            SERVER_COUNTRIES: Netherlands
+        volumes:
+            - ${DOCKERDIR}/services/gluetun:/gluetun
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.gluetun-qbittorrent.rule=Host(`qbit.${DOMAINNAME}`)
+            - traefik.http.routers.gluetun-qbittorrent.entrypoints=websecure
+            - traefik.http.routers.gluetun-qbittorrent.tls.certresolver=letsencrypt
+            - traefik.http.routers.gluetun-qbittorrent.middlewares=auth,securityheaders
+            - traefik.http.services.gluetun.loadbalancer.server.port=8080
+
+    qbittorrent:
+        image: lscr.io/linuxserver/qbittorrent:latest
+        container_name: qbittorrent
+        restart: unless-stopped
+        network_mode: "service:gluetun"
+        environment:
+            TZ: ${TZ}
+            PUID: ${PUID}
+            PGID: ${PGID}
+            UMASK_SET: 002
+            WEBUI_PORT: 8180
+        healthcheck:
+            test: "curl -sf https://example.com || exit 1"
+            interval: 1m
+            timeout: 10s
+            retries: 1
+        volumes:
+            - ${DOCKERDIR}/services/qbittorrent:/config
+            - ${MEDIADIR}/Downloads:/downloads
+        labels:
+            - deunhealth.restart.on.unhealthy=true
 
 networks:
     default:
