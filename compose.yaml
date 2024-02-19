@@ -197,6 +197,28 @@ services:
             - traefik.http.routers.sonarr.middlewares=securityheaders
             - traefik.http.services.sonarr.loadbalancer.server.port=8989
 
+    sonarr_anime:
+        image: lscr.io/linuxserver/sonarr:develop
+        container_name: sonarr_anime
+        restart: unless-stopped
+        networks:
+            - traefik_proxy
+        environment:
+            TZ: ${TZ}
+            PUID: ${PUID}
+            PGID: ${PGID}
+        volumes:
+            - ${MEDIADIR}:/data
+            - ${DOCKERDIR}/services/sonarr_anime:/config
+            - /etc/localtime:/etc/localtime:ro
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.sonarr_anime.rule=Host(`sonarr-anime.$DOMAINNAME`)
+            - traefik.http.routers.sonarr_anime.entrypoints=websecure
+            - traefik.http.routers.sonarr_anime.tls.certresolver=letsencrypt
+            - traefik.http.routers.sonarr_anime.middlewares=securityheaders
+            - traefik.http.services.sonarr_anime.loadbalancer.server.port=8989
+
     radarr:
         image: lscr.io/linuxserver/radarr:latest
         container_name: radarr
@@ -270,8 +292,6 @@ services:
             - traefik_proxy
         environment:
             TZ: ${TZ}
-            PUID: ${PUID}
-            PGID: ${PGID}
         volumes:
             - ${DOCKERDIR}/services/recyclarr:/config
 
