@@ -116,11 +116,18 @@ services:
             PLEX_UID: ${PUID}
             PLEX_GID: ${PGID}
             PLEX_CLAIM: ${PLEX_CLAIM}
-            ADVERTISE_IP: "http://${HOST_IP}:32400/"
+            ADVERTISE_IP: "https://plex.${DOMAINNAME}/"
         volumes:
             - ${DOCKERDIR}/services/plex:/config
             - ${MEDIADIR}:/data
             - /dev/shm:/transcode
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.plex.rule=Host(`plex.${DOMAINNAME}`)
+            - traefik.http.routers.plex.entrypoints=websecure
+            - traefik.http.routers.plex.tls.certresolver=letsencrypt
+            - traefik.http.routers.plex.middlewares=securityheaders
+            - traefik.http.services.plex.loadbalancer.server.port=32400
 
     gluetun:
         image: qmcgaw/gluetun:latest
