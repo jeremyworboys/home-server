@@ -36,9 +36,9 @@ services:
             - --certificatesresolvers.letsencrypt.acme.tlsChallenge=true
             - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json
         volumes:
-            - $DOCKERDIR/logs/traefik:/logs
-            - $DOCKERDIR/services/traefik/rules:/rules
-            - $DOCKERDIR/services/traefik/acme:/etc/traefik/acme
+            - ${DOCKERDIR}/logs/traefik:/logs
+            - ${DOCKERDIR}/services/traefik/rules:/rules
+            - ${DOCKERDIR}/services/traefik/acme:/etc/traefik/acme
             - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
             - traefik.enable=true
@@ -63,7 +63,7 @@ services:
         environment:
             - TZ=$TZ
         volumes:
-            - $DOCKERDIR/services/portainer/data:/data
+            - ${DOCKERDIR}/services/portainer/data:/data
             - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
             - traefik.enable=true
@@ -82,8 +82,8 @@ services:
         environment:
             - TZ=${TZ}
         volumes:
-            - $DOCKERDIR/services/homepage:/app/config
-            - $DOCKERDIR/logs/homepage:/app/config/logs
+            - ${DOCKERDIR}/services/homepage:/app/config
+            - ${DOCKERDIR}/logs/homepage:/app/config/logs
             - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
             - traefik.enable=true
@@ -118,8 +118,8 @@ services:
             PLEX_CLAIM: ${PLEX_CLAIM}
             ADVERTISE_IP: "http://${HOST_IP}:32400/"
         volumes:
-            - $DOCKERDIR/services/plex:/config
-            - $MEDIADIR:/data
+            - ${DOCKERDIR}/services/plex:/config
+            - ${MEDIADIR}:/data
             - /dev/shm:/transcode
 
     gluetun:
@@ -170,6 +170,7 @@ services:
             retries: 1
         volumes:
             - ${DOCKERDIR}/services/qbittorrent:/config
+            - ${DOCKERDIR}/logs/qbittorrent:/config/logs
             - ${MEDIADIR}/Downloads:/downloads
         labels:
             - deunhealth.restart.on.unhealthy=true
