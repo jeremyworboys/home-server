@@ -93,7 +93,40 @@ services:
             - traefik.http.routers.homepage.middlewares=auth,securityheaders
             - traefik.http.services.homepage.loadbalancer.server.port=3000
 
+    plex:
+        image: plexinc/pms-docker:latest
+        container_name: plex
+        networks:
+            - default
+        restart: "unless-stopped"
+        #devices:
+        #    - /dev/dri:/dev/dri # for hardware transcoding
+        ports:
+            - "1900:1900/udp"
+            - "8324:8324/tcp"
+            - "32400:32400/tcp"
+            - "32410:32410/udp"
+            - "32412:32412/udp"
+            - "32413:32413/udp"
+            - "32414:32414/udp"
+            - "32469:32469/tcp"
+        volumes:
+            - $DOCKERDIR/services/plex:/config
+            - $MEDIADIR:/data
+            - /dev/shm:/data/transcode
+        environment:
+            TZ: ${TZ}
+            HOSTNAME: "Plex"
+            PLEX_UID: ${PUID}
+            PLEX_GID: ${PGID}
+            PLEX_CLAIM: ${PLEX_CLAIM}
+            ADVERTISE_IP: "http://${HOST_IP}:32400/"
+            ALLOWED_NETWORKS: $LOCAL_NETWORK
+
 networks:
+    default:
+        driver: bridge
+
     traefik_proxy:
         name: traefik_proxy
         external: true
