@@ -146,11 +146,11 @@ services:
             - ${DOCKERDIR}/services/gluetun:/gluetun
         labels:
             - traefik.enable=true
-            - traefik.http.routers.gluetun-qbittorrent.rule=Host(`qbit.${DOMAINNAME}`)
-            - traefik.http.routers.gluetun-qbittorrent.entrypoints=websecure
-            - traefik.http.routers.gluetun-qbittorrent.tls.certresolver=letsencrypt
-            - traefik.http.routers.gluetun-qbittorrent.middlewares=auth,securityheaders
-            - traefik.http.services.gluetun.loadbalancer.server.port=8080
+            - traefik.http.routers.gluetun.rule=Host(`qbit.${DOMAINNAME}`)
+            - traefik.http.routers.gluetun.entrypoints=websecure
+            - traefik.http.routers.gluetun.tls.certresolver=letsencrypt
+            - traefik.http.routers.gluetun.middlewares=auth,securityheaders
+            - traefik.http.services.gluetun.loadbalancer.server.port=8180
 
     qbittorrent:
         image: lscr.io/linuxserver/qbittorrent:latest
