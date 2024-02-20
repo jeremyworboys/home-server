@@ -102,7 +102,7 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
             - traefik.enable=true
-            - traefik.http.routers.dozzle.rule=Host(`dozzle.$DOMAINNAME`)
+            - traefik.http.routers.dozzle.rule=Host(`dozzle.${DOMAINNAME}`)
             - traefik.http.routers.dozzle.entrypoints=websecure
             - traefik.http.routers.dozzle.middlewares=auth,securityheaders
             - traefik.http.services.dozzle.loadbalancer.server.port=8080
@@ -151,11 +151,17 @@ services:
             PLEX_UID: ${PUID}
             PLEX_GID: ${PGID}
             PLEX_CLAIM: ${PLEX_CLAIM}
-            ADVERTISE_IP: "https://${DOMAINNAME}:32400/"
+            ADVERTISE_IP: "http://${HOST_IP}:32400/,https://plex.${DOMAINNAME}"
         volumes:
             - ${DOCKERDIR}/services/plex:/config
             - ${MEDIADIR}/media:/data
             - /dev/shm:/transcode
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.plex.rule=Host(`plex.${DOMAINNAME}`)
+            - traefik.http.routers.plex.entrypoints=websecure
+            - traefik.http.routers.plex.middlewares=securityheaders
+            - traefik.http.services.plex.loadbalancer.server.port=32400
 
     gluetun:
         image: qmcgaw/gluetun:latest
@@ -227,7 +233,7 @@ services:
             UMASK_SET: 002
         labels:
             - traefik.enable=true
-            - traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.$DOMAINNAME`)
+            - traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.${DOMAINNAME}`)
             - traefik.http.routers.sabnzbd.entrypoints=websecure
             - traefik.http.routers.sabnzbd.middlewares=securityheaders
             - traefik.http.services.sabnzbd.loadbalancer.server.port=8080
@@ -250,7 +256,7 @@ services:
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
-            - traefik.http.routers.sonarr.rule=Host(`sonarr.$DOMAINNAME`)
+            - traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAINNAME}`)
             - traefik.http.routers.sonarr.entrypoints=websecure
             - traefik.http.routers.sonarr.middlewares=securityheaders
             - traefik.http.services.sonarr.loadbalancer.server.port=8989
@@ -273,7 +279,7 @@ services:
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
-            - traefik.http.routers.sonarr_anime.rule=Host(`sonarr-anime.$DOMAINNAME`)
+            - traefik.http.routers.sonarr_anime.rule=Host(`sonarr-anime.${DOMAINNAME}`)
             - traefik.http.routers.sonarr_anime.entrypoints=websecure
             - traefik.http.routers.sonarr_anime.middlewares=securityheaders
             - traefik.http.services.sonarr_anime.loadbalancer.server.port=8989
@@ -296,7 +302,7 @@ services:
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
-            - traefik.http.routers.radarr.rule=Host(`radarr.$DOMAINNAME`)
+            - traefik.http.routers.radarr.rule=Host(`radarr.${DOMAINNAME}`)
             - traefik.http.routers.radarr.entrypoints=websecure
             - traefik.http.routers.radarr.middlewares=securityheaders
             - traefik.http.services.radarr.loadbalancer.server.port=7878
@@ -319,7 +325,7 @@ services:
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
-            - traefik.http.routers.lidarr.rule=Host(`lidarr.$DOMAINNAME`)
+            - traefik.http.routers.lidarr.rule=Host(`lidarr.${DOMAINNAME}`)
             - traefik.http.routers.lidarr.entrypoints=websecure
             - traefik.http.routers.lidarr.middlewares=securityheaders
             - traefik.http.services.lidarr.loadbalancer.server.port=8686
@@ -341,7 +347,7 @@ services:
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
-            - traefik.http.routers.prowlarr.rule=Host(`prowlarr.$DOMAINNAME`)
+            - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAINNAME}`)
             - traefik.http.routers.prowlarr.entrypoints=websecure
             - traefik.http.routers.prowlarr.middlewares=securityheaders
             - traefik.http.services.prowlarr.loadbalancer.server.port=9696
@@ -373,7 +379,7 @@ services:
             - ${DOCKERDIR}/services/overseerr:/app/config
         labels:
             - traefik.enable=true
-            - traefik.http.routers.overseerr.rule=Host(`overseerr.$DOMAINNAME`)
+            - traefik.http.routers.overseerr.rule=Host(`overseerr.${DOMAINNAME}`)
             - traefik.http.routers.overseerr.entrypoints=websecure
             - traefik.http.routers.overseerr.middlewares=securityheaders
             - traefik.http.services.overseerr.loadbalancer.server.port=5055
