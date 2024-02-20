@@ -11,9 +11,9 @@ services:
             - "80:80"
             - "443:443"
         environment:
-            - TZ=${TZ}
-            - PUID=${PUID}
-            - PGID=${PGID}
+            TZ: ${TZ}
+            PUID: ${PUID}
+            PGID: ${PGID}
         command:
             - --api=true
             - --api.dashboard=true
@@ -61,7 +61,7 @@ services:
         networks:
             - traefik_proxy
         environment:
-            - TZ=$TZ
+            TZ: $TZ
         volumes:
             - ${DOCKERDIR}/services/portainer/data:/data
             - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -84,6 +84,27 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
 
+    dozzle:
+        image: amir20/dozzle:latest
+        container_name: dozzle
+        restart: unless-stopped
+        networks:
+            - traefik_proxy
+        environment:
+            DOZZLE_LEVEL: info
+            DOZZLE_TAILSIZE: 300
+            DOZZLE_FILTER: "status=running"
+            DOZZLE_NO_ANALYTICS: true
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.dozzle.rule=Host(`dozzle.$DOMAINNAME`)
+            - traefik.http.routers.dozzle.entrypoints=websecure
+            - traefik.http.routers.dozzle.tls.certresolver=letsencrypt
+            - traefik.http.routers.dozzle.middlewares=auth,securityheaders
+            - traefik.http.services.dozzle.loadbalancer.server.port=8080
+
     homepage:
         image: ghcr.io/gethomepage/homepage:latest
         container_name: homepage
@@ -91,7 +112,7 @@ services:
         networks:
             - traefik_proxy
         environment:
-            - TZ=${TZ}
+            TZ: ${TZ}
         volumes:
             - ${DOCKERDIR}/services/homepage:/app/config
             - ${DOCKERDIR}/logs/homepage:/app/config/logs
