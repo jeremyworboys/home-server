@@ -73,6 +73,17 @@ services:
             - traefik.http.routers.portainer.middlewares=securityheaders
             - traefik.http.services.portainer.loadbalancer.server.port=9000
 
+    deunhealth:
+        image: qmcgaw/deunhealth:latest
+        container_name: deunhealth
+        restart: unless-stopped
+        environment:
+            TZ: ${TZ}
+            LOG_LEVEL: info
+            HEALTH_SERVER_ADDRESS: 127.0.0.1:9999
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+
     homepage:
         image: ghcr.io/gethomepage/homepage:latest
         container_name: homepage
