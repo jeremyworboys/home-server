@@ -136,6 +136,7 @@ services:
         #    - /dev/dri:/dev/dri # for hardware transcoding
         networks:
             - default
+            - traefik_proxy
         ports:
             - "1900:1900/udp"
             - "8324:8324/tcp"
