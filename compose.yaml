@@ -205,6 +205,8 @@ services:
         container_name: qbittorrent
         restart: unless-stopped
         network_mode: "service:gluetun"
+        depends_on:
+            - gluetun
         environment:
             TZ: ${TZ}
             PUID: ${PUID}
