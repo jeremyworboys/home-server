@@ -135,29 +135,6 @@ services:
             - traefik.http.routers.homepage.middlewares=auth,securityheaders
             - traefik.http.services.homepage.loadbalancer.server.port=3000
 
-    glances:
-        image: nicolargo/glances:latest-full
-        container_name: glances
-        restart: unless-stopped
-        networks:
-            - default
-            - traefik_proxy
-        ports:
-            - "61208:61208"
-        pid: host
-        volumes:
-            - ${DOCKERDIR}/services/glances:/glances/conf
-            - /var/run/docker.sock:/var/run/docker.sock:ro
-        environment:
-            TZ: ${TZ}
-            GLANCES_OPT: "-w"
-        labels:
-            - traefik.enable=true
-            - traefik.http.routers.glances.rule=Host(`glances.${DOMAINNAME}`)
-            - traefik.http.routers.glances.entrypoints=websecure
-            - traefik.http.routers.glances.middlewares=auth,securityheaders
-            - traefik.http.services.glances.loadbalancer.server.port=61208
-
     plex:
         image: plexinc/pms-docker:latest
         container_name: plex
