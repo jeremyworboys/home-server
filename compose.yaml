@@ -161,6 +161,7 @@ services:
             ADVERTISE_IP: "http://${HOST_IP}:32400/,https://plex.${DOMAINNAME}"
         volumes:
             - ${DOCKERDIR}/services/plex:/config
+            - ${DOCKERDIR}/logs/plex:/config/Library/Application Support/Logs
             - ${MEDIADIR}/media:/data
             - /dev/shm:/transcode
         labels:
@@ -234,6 +235,7 @@ services:
             - "8080:8080"
         volumes:
             - ${DOCKERDIR}/services/sabnzbd:/config
+            - ${DOCKERDIR}/logs/sabnzbd:/config/logs
             - ${MEDIADIR}/usenet:/data
         environment:
             TZ: ${TZ}
@@ -262,6 +264,7 @@ services:
         volumes:
             - ${MEDIADIR}:/data
             - ${DOCKERDIR}/services/sonarr:/config
+            - ${DOCKERDIR}/logs/sonarr:/config/logs
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
@@ -285,6 +288,7 @@ services:
         volumes:
             - ${MEDIADIR}:/data
             - ${DOCKERDIR}/services/sonarr_anime:/config
+            - ${DOCKERDIR}/logs/sonarr_anime:/config/logs
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
@@ -308,6 +312,7 @@ services:
         volumes:
             - ${MEDIADIR}:/data
             - ${DOCKERDIR}/services/radarr:/config
+            - ${DOCKERDIR}/logs/radarr:/config/logs
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
@@ -331,6 +336,7 @@ services:
         volumes:
             - ${MEDIADIR}:/data
             - ${DOCKERDIR}/services/lidarr:/config
+            - ${DOCKERDIR}/logs/lidarr:/config/logs
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
@@ -353,6 +359,7 @@ services:
             PGID: ${PGID}
         volumes:
             - ${DOCKERDIR}/services/prowlarr:/config
+            - ${DOCKERDIR}/logs/prowlarr:/config/logs
             - /etc/localtime:/etc/localtime:ro
         labels:
             - traefik.enable=true
@@ -371,6 +378,7 @@ services:
             TZ: ${TZ}
         volumes:
             - ${DOCKERDIR}/services/recyclarr:/config
+            - ${DOCKERDIR}/logs/recyclarr:/config/logs
 
     overseerr:
         image: sctx/overseerr:latest
@@ -386,6 +394,7 @@ services:
             PGID: ${PGID}
         volumes:
             - ${DOCKERDIR}/services/overseerr:/app/config
+            - ${DOCKERDIR}/logs/overseerr:/app/config/logs
         labels:
             - traefik.enable=true
             - traefik.http.routers.overseerr.rule=Host(`overseerr.${DOMAINNAME}`)
