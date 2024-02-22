@@ -17,6 +17,13 @@ services:
         command:
             - --api=true
             - --api.dashboard=true
+            - --log=true
+            - --log.level=INFO
+            - --log.filePath=/logs/traefik.log
+            - --accessLog=true
+            - --accessLog.filePath=/logs/access.log
+            - --accessLog.bufferingSize=100
+            - --accessLog.filters.statusCodes=204-299,400-499,500-599
             - --entrypoints.web.address=:80
             - --entrypoints.web.http.redirections.entrypoint.to=websecure
             - --entrypoints.web.http.redirections.entrypoint.scheme=https
@@ -27,7 +34,7 @@ services:
             - --entrypoints.websecure.http.tls.certresolver=letsencrypt
             - --entrypoints.websecure.http.tls.domains[0].main=${DOMAINNAME}
             - --entrypoints.websecure.http.tls.domains[0].sans=*.${DOMAINNAME}
-            # - --entrypoints.websecure.forwardedHeaders.trustedIPs=${LOCAL_IPS},173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32
+            - --entrypoints.websecure.forwardedHeaders.trustedIPs=${LOCAL_IPS}
             - --providers.docker=true
             - --providers.docker.endpoint=unix:///var/run/docker.sock
             - --providers.docker.network=traefik_proxy
