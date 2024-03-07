@@ -235,9 +235,9 @@ services:
         ports:
             - "8080:8080"
         volumes:
+            - ${MEDIADIR}/usenet:/data
             - ${DOCKERDIR}/services/sabnzbd:/config
             - ${DOCKERDIR}/logs/sabnzbd:/config/logs
-            - ${MEDIADIR}/usenet:/data
         environment:
             TZ: ${TZ}
             PUID: ${PUID}
@@ -249,6 +249,28 @@ services:
             - traefik.http.routers.sabnzbd.entrypoints=websecure
             - traefik.http.routers.sabnzbd.middlewares=securityheaders
             - traefik.http.services.sabnzbd.loadbalancer.server.port=8080
+
+    metube:
+        image: ghcr.io/alexta69/metube
+        container_name: metube
+        restart: unless-stopped
+        networks:
+            - traefik_proxy
+        ports:
+            - "8081:8081"
+        volumes:
+            - ${MEDIADIR}/metube:/downloads
+            - /dev/shm:/tempdir
+        environment:
+            PUID: ${PUID}
+            PGID: ${PGID}
+            TEMP_DIR: /tempdir
+        labels:
+            - traefik.enable=true
+            - traefik.http.routers.metube.rule=Host(`metube.${DOMAINNAME}`)
+            - traefik.http.routers.metube.entrypoints=auth,websecure
+            - traefik.http.routers.metube.middlewares=securityheaders
+            - traefik.http.services.metube.loadbalancer.server.port=8081
 
     sonarr:
         image: lscr.io/linuxserver/sonarr:develop
