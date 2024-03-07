@@ -268,8 +268,8 @@ services:
         labels:
             - traefik.enable=true
             - traefik.http.routers.metube.rule=Host(`metube.${DOMAINNAME}`)
-            - traefik.http.routers.metube.entrypoints=auth,websecure
-            - traefik.http.routers.metube.middlewares=securityheaders
+            - traefik.http.routers.metube.entrypoints=websecure
+            - traefik.http.routers.metube.middlewares=auth,securityheaders
             - traefik.http.services.metube.loadbalancer.server.port=8081
 
     sonarr:
